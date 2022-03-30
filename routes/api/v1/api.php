@@ -37,6 +37,8 @@ Route::prefix('/user')->group(function(){
     Route::get('/shops/{shop}',[ShopController::class,'show']);
     Route::put('/shops/{shop}',[ShopController::class,'update']);
     Route::delete('/shops/{shop}',[ShopController::class,'destroy']);
+
+
 });
 
 

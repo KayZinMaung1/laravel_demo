@@ -64,7 +64,6 @@ class ShopController extends Controller
             return jsend_success(new ShopResource($shop), JsonResponse::HTTP_CREATED);
         }
         catch(Exception $ex){
-
              return jsend_error(ErrorType::SAVE_ERROR);    
         }
             
@@ -128,7 +127,6 @@ class ShopController extends Controller
         }catch(Exception $ex){
             return jsend_error(ErrorType::UPDATE_ERROR);
             }
-        
     }
 
     /**
