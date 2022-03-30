@@ -26,13 +26,17 @@ Route::prefix('/user')->group(function(){
     Route::post('/register',[UserController::class,'register']);
 
     Route::middleware(['auth:api'])->group(function () {
-        Route::get('/user',[UserController::class,'user']);
+        Route::get('/user',[UserController::class,'user']);   
     });
 });
+ 
+ Route::middleware(['auth:api'])->group(function () {
+     //Shops
+    Route::get('/shops',[ShopController::class,'index']);
+    Route::post('/shops',[ShopController::class,'store']);   
+    Route::get('/shops/{shop}',[ShopController::class,'show']);
+    Route::put('/shops/{shop}',[ShopController::class,'update']);
+    Route::delete('/shops/{shop}',[ShopController::class,'destroy']);
+});
 
-//Shops
-Route::get('/shops',[ShopController::class,'index']);
-Route::post('/shops',[ShopController::class,'store']);
-Route::get('/shops/{shop}',[ShopController::class,'show']);
-Route::put('/shops/{shop}',[ShopController::class,'update']);
-Route::delete('/shops/{shop}',[ShopController::class,'destroy']);
+

@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class ShopController extends Controller
 {
+    
+    const NAME = 'name';
+    const ADDRESS = 'address';
+    const EMPLOYEES = 'employees';
+    const PHONE_NO_ONE = 'phone_no_one';
+    const PHONE_NO_TWO = 'phone_no_two';
     /**
      * Display a listing of the resource.
      *
@@ -17,9 +23,8 @@ class ShopController extends Controller
     public function index()
     {
        $user = Auth::user();
-      
-       $shops = $user->shops();
-       return Response()->json(['shops'=> $shops]);
+       $shops = $user->shops;
+       return $shops;
     }
 
     /**
@@ -30,18 +35,46 @@ class ShopController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $name = $request->get(self::NAME);
+        $address = $request->get(self::ADDRESS);
+        $employees = $request->get(self::EMPLOYEES);
+        $phone_no_one = $request->get(self::PHONE_NO_ONE);
+        $phone_no_two = $request->get(self::PHONE_NO_TWO);
+
+        $shop = new Shop();
+        $shop->name = $name;
+        $shop->address = $address;
+        $shop->employees = $employees;
+        $shop->phone_no_one = $phone_no_one;
+       
+        if($request->has(self::PHONE_NO_TWO)){
+            $shop->phone_no_two = $phone_no_two;
+        }
+        $shop->save();
+
+        $user = Auth::user();
+        $user->shops()->attach($shop->id);
+
+        return $shop;
+
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resource. 
      *
      * @param  \App\Models\Shop  $shop
      * @return \Illuminate\Http\Response
      */
     public function show(Shop $shop)
     {
-        //
+        $user = Auth::user();
+        $shops = $user->shops;
+        foreach($shops as $single_shop){
+            if($single_shop->id == $shop->id){
+                return $single_shop;
+            }
+        }
+        return "Unauthorized";
     }
 
     /**
@@ -53,7 +86,31 @@ class ShopController extends Controller
      */
     public function update(Request $request, Shop $shop)
     {
-        //
+        $user = Auth::user();
+        $shops = $user->shops;
+        foreach($shops as $single_shop){
+
+            if($single_shop->id == $shop->id){
+                $name = $request->get(self::NAME);
+                $address = $request->get(self::ADDRESS);
+                $employees = $request->get(self::EMPLOYEES);
+                $phone_no_one = $request->get(self::PHONE_NO_ONE);
+                $phone_no_two = $request->get(self::PHONE_NO_TWO);
+                
+                $shop->name = $name;
+                $shop->address = $address;
+                $shop->employees = $employees;
+                $shop->phone_no_one = $phone_no_one;
+               
+                if($request->has(self::PHONE_NO_TWO)){
+                    $shop->phone_no_two = $phone_no_two;
+                }
+                
+                $shop->save();
+                return $shop;
+            }
+        }
+        return "unauthorized";
     }
 
     /**
@@ -64,6 +121,14 @@ class ShopController extends Controller
      */
     public function destroy(Shop $shop)
     {
-        //
+        $user = Auth::user();
+        $shops = $user->shops;
+        foreach($shops as $single_shop){
+            if($single_shop->id == $shop->id){
+                $shop->delete();
+                return $shop;
+            }
+        }
+        return "authorized";
     }
 }
