@@ -14,6 +14,15 @@ class ShopResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'address' => $this->address,
+            'employees' => $this->employees,
+            'phone_no_one' => $this->phone_no_one,
+            'phone_no_two' => $this->phone_no_two,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

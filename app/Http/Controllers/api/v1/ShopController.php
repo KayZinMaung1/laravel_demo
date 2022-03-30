@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ShopResource;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use App\Utils\ErrorType;
+use Exception;
+
 
 class ShopController extends Controller
 {
-    
     const NAME = 'name';
     const ADDRESS = 'address';
     const EMPLOYEES = 'employees';
@@ -24,7 +29,7 @@ class ShopController extends Controller
     {
        $user = Auth::user();
        $shops = $user->shops;
-       return $shops;
+       return response()->json(["status" => "success", "data" => ShopResource::collection($shops), "total" => count($shops)]);
     }
 
     /**
@@ -35,28 +40,34 @@ class ShopController extends Controller
      */
     public function store(Request $request)
     {
-        $name = $request->get(self::NAME);
-        $address = $request->get(self::ADDRESS);
-        $employees = $request->get(self::EMPLOYEES);
-        $phone_no_one = $request->get(self::PHONE_NO_ONE);
-        $phone_no_two = $request->get(self::PHONE_NO_TWO);
+        try{
+            $name = $request->get(self::NAME);
+            $address = $request->get(self::ADDRESS);
+            $employees = $request->get(self::EMPLOYEES);
+            $phone_no_one = $request->get(self::PHONE_NO_ONE);
+            $phone_no_two = $request->get(self::PHONE_NO_TWO);
 
-        $shop = new Shop();
-        $shop->name = $name;
-        $shop->address = $address;
-        $shop->employees = $employees;
-        $shop->phone_no_one = $phone_no_one;
-       
-        if($request->has(self::PHONE_NO_TWO)){
-            $shop->phone_no_two = $phone_no_two;
+            $shop = new Shop();
+            $shop->name = $name;
+            $shop->address = $address;
+            $shop->employees = $employees;
+            $shop->phone_no_one = $phone_no_one;
+        
+            if($request->has(self::PHONE_NO_TWO)){
+                $shop->phone_no_two = $phone_no_two;
+            }
+            $shop->save();
+
+            $user = Auth::user();
+            $user->shops()->attach($shop->id);
+
+            return jsend_success(new ShopResource($shop), JsonResponse::HTTP_CREATED);
         }
-        $shop->save();
+        catch(Exception $ex){
 
-        $user = Auth::user();
-        $user->shops()->attach($shop->id);
-
-        return $shop;
-
+             return jsend_error(ErrorType::SAVE_ERROR);    
+        }
+            
     }
 
     /**
@@ -71,10 +82,10 @@ class ShopController extends Controller
         $shops = $user->shops;
         foreach($shops as $single_shop){
             if($single_shop->id == $shop->id){
-                return $single_shop;
+                return jsend_success(new ShopResource($shop));
             }
         }
-        return "Unauthorized";
+        return jsend_fail(['error'=>"Unauthorized."],JsonResponse::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -86,31 +97,38 @@ class ShopController extends Controller
      */
     public function update(Request $request, Shop $shop)
     {
-        $user = Auth::user();
-        $shops = $user->shops;
-        foreach($shops as $single_shop){
+       try{
+            $user = Auth::user();
+            $shops = $user->shops;
+            foreach($shops as $single_shop){
 
-            if($single_shop->id == $shop->id){
-                $name = $request->get(self::NAME);
-                $address = $request->get(self::ADDRESS);
-                $employees = $request->get(self::EMPLOYEES);
-                $phone_no_one = $request->get(self::PHONE_NO_ONE);
-                $phone_no_two = $request->get(self::PHONE_NO_TWO);
+                if($single_shop->id == $shop->id){
+                    $name = $request->get(self::NAME);
+                    $address = $request->get(self::ADDRESS);
+                    $employees = $request->get(self::EMPLOYEES);
+                    $phone_no_one = $request->get(self::PHONE_NO_ONE);
+                    $phone_no_two = $request->get(self::PHONE_NO_TWO);
+                    
+                    $shop->name = $name;
+                    $shop->address = $address;
+                    $shop->employees = $employees;
+                    $shop->phone_no_one = $phone_no_one;
                 
-                $shop->name = $name;
-                $shop->address = $address;
-                $shop->employees = $employees;
-                $shop->phone_no_one = $phone_no_one;
-               
-                if($request->has(self::PHONE_NO_TWO)){
-                    $shop->phone_no_two = $phone_no_two;
+                    if($request->has(self::PHONE_NO_TWO)){
+                        $shop->phone_no_two = $phone_no_two;
+                    }
+                    
+                    $shop->save();
+                    return jsend_success(new ShopResource($shop),JsonResponse::HTTP_CREATED);
                 }
                 
-                $shop->save();
-                return $shop;
             }
-        }
-        return "unauthorized";
+            return jsend_fail(['error'=> 'Unauthorized.'],JsonResponse::HTTP_UNAUTHORIZED);
+          
+        }catch(Exception $ex){
+            return jsend_error(ErrorType::UPDATE_ERROR);
+            }
+        
     }
 
     /**
@@ -121,14 +139,19 @@ class ShopController extends Controller
      */
     public function destroy(Shop $shop)
     {
+       try{
         $user = Auth::user();
         $shops = $user->shops;
         foreach($shops as $single_shop){
             if($single_shop->id == $shop->id){
                 $shop->delete();
-                return $shop;
+                return jsend_success(null,JsonResponse::HTTP_NO_CONTENT);
             }
         }
-        return "authorized";
+        return jsend_fail(['error'=>'Unauthorized.'],JsonResponse::HTTP_UNAUTHORIZED);
+       }
+       catch(Exception $ex){
+            return jsend_error(ErrorType::DELETE_ERROR);
+       }
     }
 }
