@@ -8,7 +8,6 @@ use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use App\Utils\ErrorType;
 use Exception;
 
@@ -31,7 +30,6 @@ class ShopController extends Controller
        $shops = $user->shops;
        return response()->json(["status" => "success", "data" => ShopResource::collection($shops), "total" => count($shops)]);
     }
-
     /**
      * Store a newly created resource in storage.
      *

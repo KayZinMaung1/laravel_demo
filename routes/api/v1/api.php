@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\v1\CustomerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\v1\UserController;
@@ -38,7 +39,12 @@ Route::prefix('/user')->group(function(){
     Route::put('/shops/{shop}',[ShopController::class,'update']);
     Route::delete('/shops/{shop}',[ShopController::class,'destroy']);
 
-
+    //Customers
+    Route::get('/customers/{shop?}',[CustomerController::class,'index']);
+    Route::post('/customers',[CustomerController::class,'store']);
+    Route::get('/customer/{customer}',[CustomerController::class,'show']);
+    Route::put('/customers/{customer}',[CustomerController::class,'update']);
+    Route::delete('/customers/{customer}',[CustomerController::class,'destroy']);
 });
 
 
