@@ -17,4 +17,8 @@ class Shop extends Model
         return $this->hasMany(Customer::class);
     }
 
+    public function companies(){
+        return $this->hasMany(Company::class);
+    }
+
 }

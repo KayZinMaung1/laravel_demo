@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\v1\CompanyController;
 use App\Http\Controllers\api\v1\CustomerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,13 @@ Route::prefix('/user')->group(function(){
     Route::get('/customer/{customer}',[CustomerController::class,'show']);
     Route::put('/customers/{customer}',[CustomerController::class,'update']);
     Route::delete('/customers/{customer}',[CustomerController::class,'destroy']);
+
+    //Companies
+    Route::get('/companies/{shop?}',[CompanyController::class,'index']);
+    Route::post('/companies',[CompanyController::class,'store']);
+    Route::get('/company/{company}',[CompanyController::class,'show']);
+    Route::put('/companies/{company}',[CompanyController::class,'update']);
+    Route::delete('/companies/{company}',[CompanyController::class,'destroy']);
 });
 
 

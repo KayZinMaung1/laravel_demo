@@ -159,6 +159,5 @@ class CustomerController extends Controller
             }
         }
         return jsend_fail(['error'=>'Unauthorized.'],JsonResponse::HTTP_UNAUTHORIZED);
-
     }
 }
